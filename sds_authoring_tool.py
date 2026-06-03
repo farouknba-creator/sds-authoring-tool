@@ -29,7 +29,7 @@ def load_json(file_name, default=None):
         return default
 
 # -------------------------------------------------------------------
-# Extract sections from PDF
+# Extract sections from PDF (improved heading detection)
 # -------------------------------------------------------------------
 def extract_sections_from_pdf(pdf_path):
     """Extract sections from a GHS‑compliant SDS PDF. Handles:
@@ -39,7 +39,6 @@ def extract_sections_from_pdf(pdf_path):
        - 1. HAZARDS IDENTIFICATION
        and similar variations.
     """
-    import re
     text = ""
     try:
         with pdfplumber.open(pdf_path) as pdf:
@@ -57,13 +56,7 @@ def extract_sections_from_pdf(pdf_path):
     text = text.replace('\r\n', '\n').replace('\r', '\n')
 
     # Pattern to match GHS section headings, capturing the full heading line
-    # This will match:
-    #   SECTION 1: Identification
-    #   Section 1. Identification
-    #   1. Identification
-    #   2. HAZARDS IDENTIFICATION
-    #   SECTION 2 – Hazards identification
-    #   etc.
+    # Matches: SECTION 1: Identification / Section 1. Identification / 1. Identification / etc.
     heading_pattern = re.compile(
         r'^(?:SECTION\s+)?(\d{1,2})\s*[\.\:\)\-]?\s*(.*?)\s*$',
         re.IGNORECASE | re.MULTILINE
@@ -76,21 +69,18 @@ def extract_sections_from_pdf(pdf_path):
         return [text.strip()]
 
     sections = []
-    # First section starts at the first heading; discard any preamble before it
+    # Split at each heading; discard any preamble before the first heading
     for i, match in enumerate(matches):
         section_num = match.group(1)
         title = match.group(2).strip()
         start = match.start()
         end = matches[i+1].start() if i+1 < len(matches) else len(text)
         body = text[start:end].strip()
-        # Create a clean label for the section
+        # Create a clean label for display (not saved, just for the listbox)
         label = f"Section {section_num} – {title}" if title else f"Section {section_num}"
         # The section content is the whole block from the heading onward
         sections.append(body)
 
-    # If there is any text before the first heading, we could optionally add it as a
-    # "Preamble" section, but SDS have supplier info there that you might want to skip.
-    # We'll skip it for cleanliness.
     return sections
 
 # -------------------------------------------------------------------
@@ -111,7 +101,7 @@ class SDSAuthoringTool(tk.Tk):
         self.identities = []
         self.current_identity = None
 
-        # Load configs
+        # Load config files
         self.load_configs()
         self.create_widgets()
 
@@ -225,34 +215,35 @@ class SDSAuthoringTool(tk.Tk):
                 self.fields_listbox.insert(tk.END, f"[  ] {label}")
 
     def map_selected(self):
-    """Map the selected source section to the selected template field."""
-    source_sel = self.source_listbox.curselection()
-    target_sel = self.fields_listbox.curselection()
+        """Map the selected source section to the selected template field."""
+        source_sel = self.source_listbox.curselection()
+        target_sel = self.fields_listbox.curselection()
 
-    self.status.config(text=f"Source sel: {source_sel}, Target sel: {target_sel}")
-    self.update()
+        # Diagnostic: show raw selection indices in status bar
+        self.status.config(text=f"Source sel: {source_sel}, Target sel: {target_sel}")
+        self.update()
 
-    if not source_sel:
-        messagebox.showwarning("Mapping", "Please select a source section first.")
-        return
-    if not target_sel:
-        messagebox.showwarning("Mapping", "Please select a template field first.")
-        return
+        if not source_sel:
+            messagebox.showwarning("Mapping", "Please select a source section first.")
+            return
+        if not target_sel:
+            messagebox.showwarning("Mapping", "Please select a template field first.")
+            return
 
-    src_idx = source_sel[0]
-    tgt_idx = target_sel[0]
+        src_idx = source_sel[0]
+        tgt_idx = target_sel[0]
 
-    if src_idx >= len(self.source_sections) or tgt_idx >= len(self.template_fields):
-        messagebox.showerror("Error", "Selected index out of range.")
-        return
+        if src_idx >= len(self.source_sections) or tgt_idx >= len(self.template_fields):
+            messagebox.showerror("Error", "Selected index out of range.")
+            return
 
-    section_text = self.source_sections[src_idx]
-    field = self.template_fields[tgt_idx]
-    label = field["label"]
+        section_text = self.source_sections[src_idx]
+        field = self.template_fields[tgt_idx]
+        label = field["label"]
 
-    self.mappings[label] = section_text
-    self.refresh_fields_display()
-    self.status.config(text=f"Mapped section {src_idx+1} → {label}")
+        self.mappings[label] = section_text
+        self.refresh_fields_display()
+        self.status.config(text=f"Mapped section {src_idx+1} → {label}")
 
     def clear_mappings(self):
         self.mappings = {}
