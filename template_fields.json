@@ -1,0 +1,26 @@
+{
+  "fields": [
+    {"placeholder": "section_1",  "label": "Product Identifier"},
+    {"placeholder": "section_2",  "label": "Hazard Identification"},
+    {"placeholder": "section_3",  "label": "Composition / Ingredients"},
+    {"placeholder": "section_4",  "label": "First Aid Measures"},
+    {"placeholder": "section_5",  "label": "Fire Fighting Measures"},
+    {"placeholder": "section_6",  "label": "Accidental Release Measures"},
+    {"placeholder": "section_7",  "label": "Handling and Storage"},
+    {"placeholder": "section_8",  "label": "Exposure Controls"},
+    {"placeholder": "section_9",  "label": "Physical and Chemical Properties"},
+    {"placeholder": "section_10", "label": "Stability and Reactivity"},
+    {"placeholder": "section_11", "label": "Toxicological Information"},
+    {"placeholder": "section_12", "label": "Ecological Information"},
+    {"placeholder": "section_13", "label": "Disposal Considerations"},
+    {"placeholder": "section_14", "label": "Transport Information"},
+    {"placeholder": "section_15", "label": "Regulatory Information"},
+    {"placeholder": "section_16", "label": "Other Information"}
+  ],
+  "identity_placeholders": {
+    "company_name": "{{company_name}}",
+    "company_address": "{{company_address}}",
+    "company_phone": "{{company_phone}}",
+    "company_website": "{{company_website}}"
+  }
+}
