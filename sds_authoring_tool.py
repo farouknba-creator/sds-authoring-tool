@@ -133,6 +133,7 @@ class SDSAuthoringTool(tk.Tk):
         left_frame.pack(side="left", fill="both", expand=True, padx=5)
         self.source_listbox = tk.Listbox(left_frame, selectmode="single", width=40, height=15)
         self.source_listbox.pack(fill="both", expand=True, padx=5, pady=5)
+        self.source_listbox.config(exportselection=False)
 
         # Middle: Map button
         mid_frame = tk.Frame(listbox_frame)
@@ -146,6 +147,7 @@ class SDSAuthoringTool(tk.Tk):
         right_frame.pack(side="left", fill="both", expand=True, padx=5)
         self.fields_listbox = tk.Listbox(right_frame, selectmode="single", width=40, height=15)
         self.fields_listbox.pack(fill="both", expand=True, padx=5, pady=5)
+        self.fields_listbox.config(exportselection=False)
 
         # Populate fields list
         self.refresh_fields_display()
