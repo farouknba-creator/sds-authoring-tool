@@ -225,30 +225,34 @@ class SDSAuthoringTool(tk.Tk):
                 self.fields_listbox.insert(tk.END, f"[  ] {label}")
 
     def map_selected(self):
-        """Map the selected source section to the selected template field."""
-        # Get selected indices
-        source_sel = self.source_listbox.curselection()
-        target_sel = self.fields_listbox.curselection()
-        if not source_sel:
-            messagebox.showwarning("Mapping", "Please select a source section first.")
-            return
-        if not target_sel:
-            messagebox.showwarning("Mapping", "Please select a template field first.")
-            return
+    """Map the selected source section to the selected template field."""
+    source_sel = self.source_listbox.curselection()
+    target_sel = self.fields_listbox.curselection()
 
-        src_idx = source_sel[0]
-        tgt_idx = target_sel[0]
+    self.status.config(text=f"Source sel: {source_sel}, Target sel: {target_sel}")
+    self.update()
 
-        if src_idx >= len(self.source_sections) or tgt_idx >= len(self.template_fields):
-            return
+    if not source_sel:
+        messagebox.showwarning("Mapping", "Please select a source section first.")
+        return
+    if not target_sel:
+        messagebox.showwarning("Mapping", "Please select a template field first.")
+        return
 
-        section_text = self.source_sections[src_idx]
-        field = self.template_fields[tgt_idx]
-        label = field["label"]
+    src_idx = source_sel[0]
+    tgt_idx = target_sel[0]
 
-        self.mappings[label] = section_text
-        self.refresh_fields_display()
-        self.status.config(text=f"Mapped section {src_idx+1} → {label}")
+    if src_idx >= len(self.source_sections) or tgt_idx >= len(self.template_fields):
+        messagebox.showerror("Error", "Selected index out of range.")
+        return
+
+    section_text = self.source_sections[src_idx]
+    field = self.template_fields[tgt_idx]
+    label = field["label"]
+
+    self.mappings[label] = section_text
+    self.refresh_fields_display()
+    self.status.config(text=f"Mapped section {src_idx+1} → {label}")
 
     def clear_mappings(self):
         self.mappings = {}
